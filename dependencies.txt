@@ -1,0 +1,2 @@
+PyCrypto	NOT IMPLEMENTED YET https://www.dlitz.net/software/pycrypto/
+Paramiko	NOT IMPLEMENTED YET	https://github.com/paramiko/paramiko
