@@ -44,10 +44,9 @@ usernames = [	'host1',
 				'ubuntu',
 				'ubuntu',
 				'ubuntu',
-				'ubuntu']
+				'ubuntu']
 
 passwords = [	'cc-nie',
-				'cc-nie',
 				'cc-nie',
 				'cc-nie',
 				'cc-nie',
@@ -81,7 +80,7 @@ def test_connection(host_1,host_2):
 	#build the ssh objects hopefully using forks
 	ssh_1 = paramiko.SSHClient()
 	ssh_1.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	ssh_1.connect(host_1_ip, username=usernames[host_1_index],password=passwords[host_2_index])
+	ssh_1.connect(host_1_ip, username=usernames[host_1_index],password=passwords[host_1_index])
 
 	ssh_2 = paramiko.SSHClient()
 	ssh_2.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -97,7 +96,7 @@ def test_connection(host_1,host_2):
 			stdin, stdout, stderr = ssh.exec_command(
 			"git clone https://github.com/dpenning/UKSDN-Automated-Network-Test.git")
 
-	def test_connection(s1,s2,h_ip2):
+	def test(s1,s2,h_ip2):
 		#check if IPERf is runnning on s2.
 		# if it isnt, start it.
 		stdin2, stdout2, stderr2 = s2.exec_command('ps aux | grep iperf')
@@ -111,10 +110,11 @@ def test_connection(host_1,host_2):
 	prepare_hosts(ssh_2)
 
 	#test from 1 to 2
-	print test_connection(ssh_1,ssh_2,list_of_system_ips[list_of_hosts.index(host_2)])
-	#test from 2 to 1
-	print test_connection(ssh_2,ssh_1,list_of_system_ips[list_of_hosts.index(host_1)])
-
+	output = test(ssh_1,ssh_2,list_of_system_ips[list_of_hosts.index(host_2)]).strip().split("\n")
+	if len(output) < 2:
+		return False,None
+	return [True,output[1]]
+	
 def main():
 	import sys
 
@@ -144,7 +144,7 @@ def main():
 			print "Choose one of these hosts or change the config"
 			sys.exit()
 
-	test_connection(test_h_name_1,test_h_name_2)
+	print test_connection(test_h_name_1,test_h_name_2)
 
 if __name__ == "__main__":
 	main()
