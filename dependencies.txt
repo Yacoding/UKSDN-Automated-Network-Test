@@ -1,2 +1,6 @@
-PyCrypto	NOT IMPLEMENTED YET https://www.dlitz.net/software/pycrypto/
-Paramiko	NOT IMPLEMENTED YET	https://github.com/paramiko/paramiko
+These are for the controller
+PyCrypto https://www.dlitz.net/software/pycrypto/
+Paramiko https://github.com/paramiko/paramiko
+
+These are for the host
+iperf
