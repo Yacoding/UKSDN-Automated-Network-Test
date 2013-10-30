@@ -1,8 +1,7 @@
 #written By David Pennington October 2013
 
 ####Description
-# This program is the base class for the testing of the connections between host
-s
+# This program is the base class for the testing of the connections between hosts
 # it uses an ssh python plugin to talk to the hosts and then runs a combination
 # of ping and iperf to test the connection
 ####
