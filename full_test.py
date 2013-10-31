@@ -20,7 +20,6 @@ def find_exclusive_networks():
 	grouped = [0]*len(hosts)
 	groups = []
 	for a in xrange(len(hosts)):
-		print "g ",grouped
 		current_grouping = []
 		if grouped[a] == 0:
 			grouped[a] = 1
@@ -34,4 +33,7 @@ def find_exclusive_networks():
 	return groups
 
 if __name__ == "__main__":
-	print find_exclusive_networks()
+	count = 1	
+	for a in find_exclusive_networks():
+		print "Group " + str(count) + "\t" + str(a)
+		count += 1
