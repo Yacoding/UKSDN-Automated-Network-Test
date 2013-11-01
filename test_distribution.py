@@ -55,7 +55,94 @@ passwords = [	'cc-nie',
 				'pastH0pe',
 				'pastH0pe']
 
+def start_ssh_session(host_1):
+	host_1 = host_1.lower()
+	if host_1 in list_of_hosts:
+		host_1_index = list_of_hosts.index(host_1)
+		host_1_ip = host_system_ip + list_of_host_ips[host_1_index]
+
+	else:
+		print "Wrong Host_1 name, If this list is wrong, change it"
+		print list_of_hosts
+		print "exiting"
+		return False
+
+
+	#build the ssh objects hopefully using forks
+	ssh_1 = paramiko.SSHClient()
+	ssh_1.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+	ssh_1.connect(host_1_ip, username=usernames[host_1_index],password=passwords[host_1_index])
+
+	#check if the test connection file is there
+	stdin, stdout, stderr = ssh_1.exec_command("ls | grep UKSDN-Automated-Network-Test")
+	if 'UKSDN-Automated-Network-Test' not in ' '.join(stdout.readlines()):
+		#get the test connection file
+		stdin, stdout, stderr = ssh_1.exec_command(
+		"git clone https://github.com/dpenning/UKSDN-Automated-Network-Test.git")
+
+	return ssh_1
+
+ssh_sessions = []
+for a in list_of_hosts:
+	print a
+	ssh_sessions.append(start_ssh_session(a))
+
+ssh_sessions = [start_ssh_session(h) for h in list_of_hosts]
+
 def test_connection(host_1,host_2):
+
+	#open ssh connections to both systems
+	host_1 = host_1.lower()
+	host_2 = host_2.lower()
+	if host_1 in list_of_hosts:
+		host_1_index = list_of_hosts.index(host_1)
+	else:
+		print "Wrong Host_1 name, If this list is wrong, change it"
+		print list_of_hosts
+		print "exiting"
+		return [False,0]
+	if host_2 in list_of_hosts:
+		host_2_index = list_of_hosts.index(host_2)
+	else:
+		print "Wrong Host_2 name, If this list is wrong, change it"
+		print list_of_hosts
+		print "exiting"
+		return [False,0]
+	ssh_1 = ssh_sessions[host_1_index]
+	ssh_2 = ssh_sessions[host_2_index]
+
+	if ssh_1 == False or ssh_2 == False:
+		print "One of the Hosts will not accept SSH"
+		print "exiting"
+		return [False,0]
+	
+	def test(s1,s2,h_ip2):
+		#check if IPERf is runnning on s2.
+		# if it isnt, start it.
+		stdin2, stdout2, stderr2 = s2.exec_command('ps aux | grep iperf')
+		x = stdout2.readlines()
+		if 'iperf -s' not in ''.join(x):
+			stdin2, stdout2, stderr2 = s2.exec_command("nohup iperf -s > /dev/null 2>&1 &")
+		stdin1, stdout1, stderr1 = s1.exec_command("cd UKSDN-Automated-Network-Test;chmod 777 *;./test_connection.sh 
+" + h_ip2)
+		return ''.join(stdout1.readlines())
+
+	#test from 1 to 2
+	output = test(ssh_1,ssh_2,list_of_system_ips[list_of_hosts.index(host_2)]).strip().split("\n")
+	if len(output) < 2:
+		return False,None
+	return [True,output[1]]
+	
+
+
+
+
+
+
+
+
+
+def old_test_connection(host_1,host_2):
 	#open ssh connections to both systems
 	host_1 = host_1.lower()
 	host_2 = host_2.lower()
@@ -103,7 +190,8 @@ def test_connection(host_1,host_2):
 		x = stdout2.readlines()
 		if 'iperf -s' not in ''.join(x):
 			stdin2, stdout2, stderr2 = s2.exec_command("nohup iperf -s > /dev/null 2>&1 &")
-		stdin1, stdout1, stderr1 = s1.exec_command("cd UKSDN-Automated-Network-Test;chmod 777 *;./test_connection.sh " + h_ip2)
+		stdin1, stdout1, stderr1 = s1.exec_command("cd UKSDN-Automated-Network-Test;chmod 777 *;./test_connection.sh 
+" + h_ip2)
 		return ''.join(stdout1.readlines())
 
 	prepare_hosts(ssh_1)
@@ -144,7 +232,7 @@ def main():
 			print "Choose one of these hosts or change the config"
 			sys.exit()
 
-	print test_connection(test_h_name_1,test_h_name_2)
+	print new_test_connection(test_h_name_1,test_h_name_2)
 
 if __name__ == "__main__":
 	main()
