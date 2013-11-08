@@ -35,8 +35,11 @@ def find_exclusive_networks():
 
 if __name__ == "__main__":
 	while True:
-		print (time.strftime("%H:%M:%S"))
-		count = 1	
-		for a in find_exclusive_networks():
-			print "Group " + str(count) + "\t" + str(a)
+		count = 1
+		x = find_exclusive_networks()
+		f = open("test_log.txt","w")
+		f.write(str(time.strftime("%H:%M:%S")) + "\n")
+		for a in x:
+			f.write("Group " + str(count) + "\t" + str(a) + "\n")
 			count += 1
+		f.close()
